@@ -1,4 +1,7 @@
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -12,7 +15,8 @@ export default defineConfig({
   plugins: [{
     name: 'museum-site-metadata',
     transformIndexHtml(html) {
-      return html.replace('<head>', '<head>\n    <meta name="museum-environment" content="production" />');
+      return html.replace('<head>', '<head>\n    <meta name="museum-environment" content="production" />')
+        .replaceAll('__APP_VERSION__', version);
     },
   }],
 });
