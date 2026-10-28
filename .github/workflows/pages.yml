@@ -28,7 +28,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - run: npm run build:master
+      - run: node scripts/check-build.mjs
       - name: Verify GitHub Pages publishing source
         uses: actions/github-script@v7
         with:
