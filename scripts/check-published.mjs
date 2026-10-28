@@ -1,0 +1,48 @@
+import { pathToFileURL } from 'node:url';
+
+export async function verifyPublishedSite(siteUrl, fetcher = fetch) {
+  const site = new URL(siteUrl);
+  if (!site.pathname.endsWith('/')) site.pathname += '/';
+  const pageUrl = new URL(site);
+  pageUrl.searchParams.set('deployment', process.env.GITHUB_SHA || Date.now().toString());
+  async function read(url, expectedType) {
+    const response = await fetcher(url, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${url.pathname}`);
+    if (expectedType && !expectedType.test(response.headers.get('content-type') || '')) {
+      throw new Error(`Unexpected content type: ${url.pathname}`);
+    }
+    return response;
+  }
+  const html = await (await read(pageUrl, /text\/html/i)).text();
+  const css = [...html.matchAll(/<link\b[^>]*>/gi)].find(([tag]) => /rel=["']stylesheet["']/i.test(tag));
+  const javascript = [...html.matchAll(/<script\b[^>]*>/gi)].find(([tag]) => /type=["']module["']/i.test(tag));
+  const cssPath = css?.[0].match(/href=["']([^"']+)["']/i)?.[1];
+  const jsPath = javascript?.[0].match(/src=["']([^"']+)["']/i)?.[1];
+  if (!cssPath || !jsPath || /(?:^|\/)src\//.test(jsPath)) {
+    throw new Error('Unbuilt source HTML is published. Set Pages Source to GitHub Actions and deploy dist/.');
+  }
+  const cssText = await (await read(new URL(cssPath, site), /text\/css/i)).text();
+  if (!cssText.includes('.site-header')) throw new Error('The museum stylesheet is missing.');
+  const jsText = await (await read(new URL(jsPath, site), /(?:javascript|ecmascript)/i)).text();
+  if (!jsText.length) throw new Error('The JavaScript bundle is empty.');
+  const model = await (await read(new URL('models/pikatyuu.glb', site))).arrayBuffer();
+  if (model.byteLength < 12 || new DataView(model).getUint32(0, true) !== 0x46546c67) {
+    throw new Error('The sample GLB model is missing or invalid.');
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const url = process.argv[2];
+  if (!url) throw new Error('Usage: node scripts/check-published.mjs <site-url>');
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await verifyPublishedSite(url);
+      console.log('Published site verified: compiled HTML, CSS, JavaScript, and GLB are available.');
+      break;
+    } catch (error) {
+      if (attempt >= 6) throw error;
+      console.log(`Published site not ready (${attempt}/6): ${error.message}`);
+      await new Promise(resolve => setTimeout(resolve, 10000));
+    }
+  }
+}
