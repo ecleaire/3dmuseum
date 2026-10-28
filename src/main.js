@@ -1,5 +1,6 @@
 import '@google/model-viewer';
 import './style.css';
+import './theme.js';
 import { MAX_MODEL_BYTES, validateGlb } from '../shared/glb.js';
 import { DriveStorage, loadGoogleIdentity } from './drive.js';
 
@@ -42,7 +43,7 @@ document.querySelectorAll('.swatch').forEach((button) => {
       swatch.setAttribute('aria-pressed', String(selected));
     });
     document.querySelector('.stage').style.backgroundColor = button.dataset.color;
-    document.querySelector('.stage').classList.toggle('dark', button.dataset.color === '#292d31');
+    document.querySelector('.stage').classList.toggle('light', ['#ebece7', '#eee7dc', '#e2e9ef'].includes(button.dataset.color));
   });
 });
 let selection = 0;

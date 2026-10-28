@@ -8,7 +8,17 @@ GitHub Pages で公開する場合の URL：
 
 [3D MUSEUM を開く](https://ecleaire.github.io/3dmuseum/)
 
-※ 公開状況は未確認です。表示するには GitHub Pages を有効にし、`/3dmuseum/` 配下で動くようにビルドした `dist/` を配信する設定が必要です。Google Drive 連携には、下記の Google 側の設定も必要です。
+### GitHub Pages の公開設定
+
+1. リポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にします。
+2. `main` に push すると `.github/workflows/pages.yml` がテスト・ビルドを実行し、`dist/` を公開します。手動の場合は Actions の「Deploy 3D Museum to GitHub Pages」から「Run workflow」を実行します。
+3. Google Drive 連携を使う場合は **Settings → Secrets and variables → Actions → Variables** に `VITE_GOOGLE_CLIENT_ID` を追加して再実行してください。Google 側の承認済み JavaScript 生成元は `https://ecleaire.github.io` です。
+
+`main` のソースファイルをそのまま Pages で配信すると、CSS・JavaScript・3Dモデルが読み込まれません。必ずビルド後の `dist/` を配信してください。相対パスでビルドするため、`/3dmuseum/` 配下でも動作します。公開サイトへの反映は Actions の完了後です。Google Drive 連携には、下記の Google 側の設定も必要です。
+
+## UI
+
+[Game Portal](https://ecleaire.github.io/Game-Portal/) に合わせた、濃紺の背景とミント色のアクセント、角丸カード、ナビゲーションを採用しています。フッターでダーク・ライト・端末設定のテーマを切り替えられます。テーマだけをブラウザに保存し、Google のトークンは保存しません。
 
 ## 開発
 
