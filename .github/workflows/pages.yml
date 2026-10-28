@@ -28,6 +28,25 @@ jobs:
       - run: npm run build
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+      # Legacy branch publishing serves Vite source files without building them.
+      # Switch the site to Actions publishing so it cannot overwrite dist/.
+      - name: Ensure GitHub Pages uses the built site
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repository = { owner: context.repo.owner, repo: context.repo.repo };
+            const { data: pages } = await github.rest.repos.getPages(repository);
+            if (pages.build_type !== 'workflow') {
+              await github.rest.repos.updateInformationAboutPagesSite({
+                ...repository,
+                build_type: 'workflow'
+              });
+            }
+            const { data: current } = await github.rest.repos.getPages(repository);
+            if (current.build_type !== 'workflow') {
+              throw new Error('Set Settings → Pages → Source to GitHub Actions.');
+            }
+            core.info('Verified Pages source: GitHub Actions');
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
