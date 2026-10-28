@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f4f0" />
+    <title>3D MUSEUM — あなたの作品を、あらゆる角度から。</title>
+  </head>
+  <body>
+    <header class="header"><a class="brand" href="/" aria-label="3D MUSEUM ホーム"><span class="brand-icon">◇</span> 3D MUSEUM</a><span class="header-note">A SPACE FOR YOUR CREATIONS</span><span class="edition">WEB EXHIBITION <span>01</span></span></header>
+    <main>
+      <section class="intro"><div><p class="eyebrow">YOUR PERSONAL GALLERY</p><h1>つくった世界を、<br>ここに飾ろう。</h1></div><p class="intro-note">Blender から、ブラウザへ。<br>あなたの3D作品を、自由な視点で楽しめる場所。</p></section>
+      <div class="gallery">
+        <section class="stage" aria-label="3Dモデルビューア">
+          <div class="stage-top"><span class="live-dot"></span><span>INTERACTIVE VIEW</span><span id="file-type">GLB / 3D MODEL</span></div>
+          <model-viewer id="viewer" src="/models/pikatyuu.glb" alt="アップロードされたピカチュウの3Dモデル" camera-controls auto-rotate shadow-intensity="1" environment-image="neutral" exposure="1" camera-orbit="30deg 75deg auto" interaction-prompt="auto" touch-action="pan-y"><div slot="progress-bar" id="loading" role="status">モデルを読み込んでいます…</div></model-viewer>
+          <div id="error" role="alert" hidden>モデルを表示できませんでした。Blender から glTF 2.0 の GLB 形式で書き出してください。</div>
+          <div class="stage-bottom"><span>ドラッグで回転 · スクロールでズーム</span><button id="reset" class="reset" type="button">↺ <span>視点をリセット</span></button></div>
+        </section>
+        <aside class="panel">
+          <p class="eyebrow">EXHIBIT <span>001</span></p><h2 id="model-name">Pikachu</h2><p class="model-caption" id="model-caption">BLENDER → GLB → BROWSER</p>
+          <p class="description">手のひらの上の、小さなミュージアム。<br>モデルをドラッグして、いろいろな角度から眺めてみてください。</p>
+          <div class="divider"></div>
+          <div class="setting"><label for="rotate">自動回転</label><button id="rotate" class="toggle" role="switch" aria-checked="true" aria-label="自動回転"><span></span></button></div>
+          <fieldset class="backgrounds"><legend>背景カラー</legend><div class="swatches"><button class="swatch selected" data-color="#ebece7" style="--color:#ebece7" aria-label="セージ" aria-pressed="true"></button><button class="swatch" data-color="#eee7dc" style="--color:#eee7dc" aria-label="サンド" aria-pressed="false"></button><button class="swatch" data-color="#e2e9ef" style="--color:#e2e9ef" aria-label="ブルー" aria-pressed="false"></button><button class="swatch" data-color="#292d31" style="--color:#292d31" aria-label="チャコール" aria-pressed="false"></button></div></fieldset>
+          <div class="divider"></div>
+          <label class="upload" for="file"><span class="upload-icon">＋</span><strong>あなたの作品を展示する</strong><span>GLB を選択・ドロップ（最大 50 MB）</span><input id="file" type="file" accept=".glb,model/gltf-binary" /></label>
+          <p class="privacy">選択するとプレビューを表示します。<br>「Drive に保存」で自分の Google Drive に保存できます。</p><p id="file-status" role="status" class="file-status"></p>
+        <section class="drive-section" aria-labelledby="drive-title">
+            <div class="divider"></div><h3 id="drive-title">Google Drive に作品を保存</h3>
+            <p class="drive-note">自分の Drive に保存して、次回もここから開けます。ファイルは非公開のまま保存されます。</p>
+            <button id="drive-connect" class="drive-button" disabled>Google Drive に接続</button>
+            <button id="drive-save" class="drive-button primary" disabled>表示中のモデルを Drive に保存</button>
+            <div class="drive-actions"><button id="drive-refresh" disabled>一覧を更新</button><button id="drive-disconnect" hidden>接続を解除</button></div>
+            <p id="drive-status" class="file-status" role="status">Google ログインを準備しています…</p>
+            <ul id="drive-files" class="drive-files" aria-label="Drive に保存したモデル"></ul>
+          </section></aside>
+      </div>
+      <section class="guide"><span class="guide-number">01 — HOW TO EXHIBIT</span><div><h3>Blender の作品を、そのまま。</h3><p>ファイル → エクスポート → glTF 2.0 から、形式を「glTF Binary (.glb)」に。<br>書き出したファイルを選ぶだけで、ここにあなたの作品が並びます。</p></div><span class="guide-mark">↗</span></section>
+    </main>
+    <footer><span>3D MUSEUM</span><span>MADE TO BE EXPLORED.</span></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
