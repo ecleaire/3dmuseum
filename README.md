@@ -13,22 +13,3 @@
 - ↺ ボタンで初期表示にリセット
 
 スマートフォン・タブレット・PC に対応しています。端末で動きを減らす設定を有効にしている場合、自動回転は停止します。
-
-## ローカルでの確認
-
-Node.js 24 を推奨します。
-
-```sh
-npm ci
-npm run dev
-```
-
-```sh
-npm test
-npm run build
-npm run preview
-```
-
-## 公開
-
-GitHub Pages の Source を **GitHub Actions** に設定します。`main` への push 後にテスト・ビルド・公開を実行し、ページと表示用ファイルを確認します。配信するファイルは `dist/` に生成されます。
