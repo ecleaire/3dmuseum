@@ -2,6 +2,14 @@
 
 Blender で作った GLB モデルのプレビューと、利用者自身の Google Drive への保存に対応した日本語の 3D ビューアです。添付の `Pikachu-main.zip` の `pikatyuu.glb` を初期展示に使っています。
 
+## 表示ページ
+
+GitHub Pages で公開する場合の URL：
+
+[3D MUSEUM を開く](https://ecleaire.github.io/3dmuseum/)
+
+※ 公開状況は未確認です。表示するには GitHub Pages を有効にし、`/3dmuseum/` 配下で動くようにビルドした `dist/` を配信する設定が必要です。Google Drive 連携には、下記の Google 側の設定も必要です。
+
 ## 開発
 
 Node.js 20.19 以上、または 22.12 以上が必要です。この環境では Node.js 24 を使用しています。
