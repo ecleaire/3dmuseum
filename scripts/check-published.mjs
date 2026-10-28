@@ -23,9 +23,17 @@ export async function verifyPublishedSite(siteUrl, fetcher = fetch, expectedEnvi
   const cssText = await (await read(new URL(cssPath, site), /text\/css/i)).text();
   if (!cssText.includes('.site-header')) throw new Error('The museum stylesheet is missing.');
   if (expectedEnvironment === 'production') {
-    if (!html.includes('Coming soon') || /<model-viewer|<script\b/i.test(html)) {
+    if (!html.includes('Coming soon') || /<model-viewer(?![^>]*\bid=["']octahedron["'])|id=["'](?:viewer|file|drive-connect)["']/i.test(html)) {
       throw new Error('The public site must contain only the coming-soon page.');
     }
+    const script = [...html.matchAll(/<script\b[^>]*>/gi)].find(([tag]) => /type=["']module["']/i.test(tag));
+    const bundle = script?.[0].match(/src=["']([^"']+)["']/i)?.[1];
+    if (!bundle) throw new Error('The octahedron JavaScript bundle is missing.');
+    await read(new URL(bundle, site), /(?:javascript|ecmascript)/i);
+    const modelPath = html.match(/<model-viewer[^>]*src=["']([^"']+)["']/i)?.[1];
+    if (!modelPath) throw new Error('The public octahedron is missing.');
+    const modelData = await (await read(new URL(modelPath, site))).arrayBuffer();
+    if (modelData.byteLength < 12 || new DataView(modelData).getUint32(0, true) !== 0x46546c67) throw new Error('The octahedron GLB is invalid.');
     for (const path of ['preview/', 'master/', 'models/pikatyuu.glb']) {
       const privateUrl = new URL(path, site);
       privateUrl.searchParams.set('deployment', process.env.GITHUB_SHA || Date.now().toString());

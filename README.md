@@ -6,7 +6,7 @@ Blender で作った GLB モデルのプレビューと、利用者自身の Goo
 
 | 用途 | 内容 | 公開方法 |
 | --- | --- | --- |
-| [本番サイト](https://ecleaire.github.io/3dmuseum/) | ヘッダーと「近日公開予定」 | GitHub Pages |
+| [本番サイト](https://ecleaire.github.io/3dmuseum/) | ヘッダー・操作できる正八面体・「近日公開予定」 | GitHub Pages |
 | マスター版 | 現在の3Dビューア・アップロード・Drive連携を維持 | 手元で確認。インターネットへの公開は行わない |
 
 本番はまだ準備中です。機能の追加や変更はマスター版で確認し、利用者が明確に本番への反映を指示するまで、本番にアプリ画面を出しません。
@@ -23,7 +23,7 @@ GitHub Pages には、同じサイト内の一部だけを非公開にする機�
 
 - `production/`：本番用のヘッダーと Coming soon ページ。
 - `index.html`・`src/`・`public/`：マスター版の3Dアプリ。
-- `npm run build` → `dist/`：本番のみ。3Dアプリの JavaScript やモデルは含めません。
+- `npm run build` → `dist/`：本番のみ。正八面体用の表示ライブラリと GLB を含みますが、マスター版のアプリ・アップロード機能・モデルは含めません。
 - `npm run build:master` → `dist-master/`：マスター版。GitHub Pages には送信しません。
 
 本番は `main` への push で「Deploy public coming-soon site」が実行されます。Pages の Source は **GitHub Actions** のままにしてください。公開後は Coming soon 画面と CSS を取得し、マスターのパスとモデルが 404 になることも確認します。
@@ -89,3 +89,5 @@ npm run preview:master -- --port 4174 --strictPort
 `npm test` は実モデルと不正 GLB、アップロードの multipart ペイロード、ページ分割した一覧取得、権限エラー、容量超過、接続期限切れ、接続変更後のレスポンス破棄を検証します。
 
 Chromium では実モデルの描画と、Google の応答を模擬した接続 → 保存 → 再読み込み → 一覧 → モデル再表示を確認しています。実際の Google OAuth と実 Drive への保存は、管理者がクライアント ID とサイトのオリジンを設定した後に確認が必要です。
+
+本番の正八面体はドラッグ・タッチで回転、ホイール・ピンチでズームできます。視点リセットにも対応し、端末で視差効果を減らす設定の場合は自動回転を停止します。モデルは `node scripts/generate-octahedron.mjs` で再生成できます。

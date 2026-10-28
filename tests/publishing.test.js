@@ -9,7 +9,7 @@ function server({ html = built, cssStatus = 200, privatePaths = false } = {}) {
     assert.ok(url.pathname.startsWith('/3dmuseum/'));
     if (url.pathname.endsWith('app.css')) return new Response('.site-header{position:sticky}', { status: cssStatus, headers: { 'content-type': 'text/css' } });
     if (url.pathname.endsWith('app.js')) return new Response('customElements.define("model-viewer", class {});', { headers: { 'content-type': 'text/javascript' } });
-    if (privatePaths && /(?:preview\/|master\/|\.glb)$/.test(url.pathname)) return new Response('', { status: 404 });
+    if (privatePaths && /(?:preview\/|master\/|models\/pikatyuu\.glb)$/.test(url.pathname)) return new Response('', { status: 404 });
     if (url.pathname.endsWith('.glb')) return new Response(model);
     return new Response(html, { headers: { 'content-type': 'text/html' } });
   };
@@ -27,8 +27,8 @@ test('published-site check detects the wrong environment', async () => {
   const html = '<meta name="museum-environment" content="master">' + built;
   await assert.rejects(verifyPublishedSite('https://example.com/3dmuseum/', server({ html }), 'production'), /Wrong published environment/);
 });
-test('public site is coming-soon only and does not serve master paths or models', async () => {
-  const html = '<meta name="museum-environment" content="production"><link rel="stylesheet" href="./assets/app.css"><h1>Coming soon</h1>';
+test('public coming-soon page serves its octahedron while excluding master paths and models', async () => {
+  const html = '<meta name="museum-environment" content="production"><link rel="stylesheet" href="./assets/app.css"><h1>Coming soon</h1><model-viewer id="octahedron" src="./octahedron.glb"></model-viewer><script type="module" src="./assets/app.js"></script>';
   await verifyPublishedSite('https://example.com/3dmuseum/', server({ html, privatePaths: true }), 'production');
   await assert.rejects(verifyPublishedSite('https://example.com/3dmuseum/', server({ html }), 'production'), /must return 404/);
   await assert.rejects(verifyPublishedSite('https://example.com/3dmuseum/', server({ html: html + '<model-viewer></model-viewer>', privatePaths: true }), 'production'), /only the coming-soon/);

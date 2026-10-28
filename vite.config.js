@@ -6,8 +6,8 @@ export default defineConfig(({ mode }) => {
   return {
     root: production ? fileURLToPath(new URL('./production', import.meta.url)) : fileURLToPath(new URL('.', import.meta.url)),
     base: './',
-    // The public site must never contain model files or the master application.
-    publicDir: production ? false : 'public',
+    // Only the dedicated octahedron asset is public; never copy master assets.
+    publicDir: production ? fileURLToPath(new URL('./production/public', import.meta.url)) : 'public',
     build: {
       outDir: fileURLToPath(new URL(production ? './dist' : './dist-master', import.meta.url)),
       emptyOutDir: true,

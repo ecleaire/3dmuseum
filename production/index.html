@@ -10,7 +10,8 @@
   </head>
   <body>
     <header class="site-header"><div class="header-inner"><a class="brand" href="./" aria-label="3D MUSEUM ホーム"><span class="eyebrow">MY 3D MODEL LIBRARY</span><span>3D MUSEUM<span class="brand-dot">.</span></span></a><span class="header-note">A SPACE FOR YOUR CREATIONS</span></div></header>
-    <main class="coming-soon" aria-labelledby="page-title"><div class="orbit" aria-hidden="true"><span>◇</span></div><p class="status"><span></span> UNDER CONSTRUCTION</p><h1 id="page-title">Coming soon<span>.</span></h1><p class="subtitle">つくった世界を、もっと身近に。</p><p class="message">3D MUSEUM は、ただいま制作中です。<br>公開まで、もうしばらくお待ちください。</p><span class="divider" aria-hidden="true"></span><p class="closing">近日公開予定</p></main>
+    <main class="coming-soon" aria-labelledby="page-title"><div class="orbit"><model-viewer id="octahedron" src="./octahedron.glb" alt="ドラッグで回転できるミント色の正八面体" camera-controls auto-rotate rotation-per-second="15deg" interaction-prompt="none" touch-action="pan-y" loading="eager" environment-image="neutral" camera-orbit="35deg 65deg auto" exposure="1" shadow-intensity="0"></model-viewer></div><div class="model-controls"><span>ドラッグで回転 · スクロールでズーム</span><button id="reset-octahedron" type="button" aria-label="正八面体の視点をリセット">↺</button></div><p id="octahedron-error" role="status" hidden>この環境では3D表示を読み込めませんでした。</p><p class="status"><span></span> UNDER CONSTRUCTION</p><h1 id="page-title">Coming soon<span>.</span></h1><p class="subtitle">つくった世界を、もっと身近に。</p><p class="message">3D MUSEUM は、ただいま制作中です。<br>公開まで、もうしばらくお待ちください。</p><span class="divider" aria-hidden="true"></span><p class="closing">近日公開予定</p></main>
     <footer>3D MUSEUM <span>CREATE & EXPLORE</span></footer>
+    <script type="module" src="./octahedron.js"></script>
   </body>
 </html>
