@@ -1,6 +1,5 @@
 const API = 'https://www.googleapis.com/drive/v3';
 const SCOPE = 'https://www.googleapis.com/auth/drive.file';
-const FOLDER_QUERY = "trashed = false and mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='museumApp' and value='3dmuseum-v1' }";
 let identityScript;
 
 export function loadGoogleIdentity() {
@@ -18,7 +17,10 @@ export function loadGoogleIdentity() {
 }
 
 export class DriveStorage {
-  constructor({ onExpired = () => {} } = {}) {
+  constructor({ onExpired = () => {}, master = false } = {}) {
+    this.folderName = master ? '3D Museum (Master)' : '3D Museum';
+    this.folderMarker = master ? '3dmuseum-master-v1' : '3dmuseum-v1';
+    this.modelMarker = master ? 'glb-master-v1' : 'glb-v1';
     this.onExpired = onExpired;
     this.generation = 0;
   }
@@ -85,24 +87,24 @@ export class DriveStorage {
   }
   async folder(create = false) {
     if (this.folderId) return this.folderId;
-    const folders = await this.listAll(FOLDER_QUERY, 'id');
+    const folders = await this.listAll(`trashed = false and mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='museumApp' and value='${this.folderMarker}' }`, 'id');
     if (folders.length) return (this.folderId = folders[0].id);
     if (!create) return null;
     const folder = await (await this.request(`${API}/files?fields=id`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: '3D Museum', mimeType: 'application/vnd.google-apps.folder', appProperties: { museumApp: '3dmuseum-v1' } }),
+      body: JSON.stringify({ name: this.folderName, mimeType: 'application/vnd.google-apps.folder', appProperties: { museumApp: this.folderMarker } }),
     })).json();
     return (this.folderId = folder.id);
   }
   async list() {
     const folder = await this.folder();
     if (!folder) return [];
-    return this.listAll(`'${folder}' in parents and trashed = false and appProperties has { key='museumModel' and value='glb-v1' }`, 'id,name,size,modifiedTime');
+    return this.listAll(`'${folder}' in parents and trashed = false and appProperties has { key='museumModel' and value='${this.modelMarker}' }`, 'id,name,size,modifiedTime');
   }
   async save(file) {
     const folder = await this.folder(true);
     const boundary = `museum_${crypto.randomUUID()}`;
-    const metadata = { name: file.name, parents: [folder], mimeType: 'model/gltf-binary', appProperties: { museumModel: 'glb-v1' } };
+    const metadata = { name: file.name, parents: [folder], mimeType: 'model/gltf-binary', appProperties: { museumModel: this.modelMarker } };
     const body = new Blob([
       `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`,
       `--${boundary}\r\nContent-Type: model/gltf-binary\r\n\r\n`, file, `\r\n--${boundary}--\r\n`,

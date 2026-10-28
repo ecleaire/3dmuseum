@@ -1,4 +1,24 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
-// Relative asset URLs work at /3dmuseum/ on GitHub Pages and on local servers.
-export default defineConfig({ base: './' });
+export default defineConfig(({ mode }) => {
+  const production = mode === 'production';
+  return {
+    root: production ? fileURLToPath(new URL('./production', import.meta.url)) : fileURLToPath(new URL('.', import.meta.url)),
+    base: './',
+    // The public site must never contain model files or the master application.
+    publicDir: production ? false : 'public',
+    build: {
+      outDir: fileURLToPath(new URL(production ? './dist' : './dist-master', import.meta.url)),
+      emptyOutDir: true,
+    },
+    plugins: [{
+      name: 'museum-site-metadata',
+      transformIndexHtml(html) {
+        const environment = production ? 'production' : 'master';
+        return html.replace('<head>', `<head>\n    <meta name="museum-environment" content="${environment}" />${production ? '' : '\n    <meta name="robots" content="noindex, nofollow" />'}`)
+          .replace('<title>3D MUSEUM</title>', '<title>【マスター版】3D MUSEUM</title>');
+      },
+    }],
+  };
+});

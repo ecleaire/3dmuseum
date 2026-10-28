@@ -2,19 +2,31 @@
 
 Blender で作った GLB モデルのプレビューと、利用者自身の Google Drive への保存に対応した日本語の 3D ビューアです。添付の `Pikachu-main.zip` の `pikatyuu.glb` を初期展示に使っています。
 
-## 表示ページ
+## 本番サイトとマスター版
 
-GitHub Pages で公開する場合の URL：
+| 用途 | 内容 | 公開方法 |
+| --- | --- | --- |
+| [本番サイト](https://ecleaire.github.io/3dmuseum/) | ヘッダーと「近日公開予定」 | GitHub Pages |
+| マスター版 | 現在の3Dビューア・アップロード・Drive連携を維持 | 手元で確認。インターネットへの公開は行わない |
 
-[3D MUSEUM を開く](https://ecleaire.github.io/3dmuseum/)
+本番はまだ準備中です。機能の追加や変更はマスター版で確認し、利用者が明確に本番への反映を指示するまで、本番にアプリ画面を出しません。
 
-### GitHub Pages の公開設定
+### 自分専用のマスター版
 
-1. リポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にします。
-2. `main` に push すると `.github/workflows/pages.yml` がテスト・ビルドを実行し、`dist/` を公開します。手動の場合は Actions の「Deploy 3D Museum to GitHub Pages」から「Run workflow」を実行します。
-3. Google Drive 連携を使う場合は **Settings → Secrets and variables → Actions → Variables** に `VITE_GOOGLE_CLIENT_ID` を追加して再実行してください。Google 側の承認済み JavaScript 生成元は `https://ecleaire.github.io` です。
+GitHub Pages には、同じサイト内の一部だけを非公開にする機能がありません。そのため `/preview/` や `/master/` にはアプリを配信せず、モデルも本番の配信物に含めません。マスター版は `npm run dev` で自分のPC内だけに表示できます。開発サーバーは `127.0.0.1` に限定しています。
 
-`main` のソースファイルをそのまま Pages で配信すると、CSS・JavaScript・3Dモデルが読み込まれません。必ずビルド後の `dist/` を配信してください。相対パスでビルドするため、`/3dmuseum/` 配下でも動作します。公開サイトへの反映は Actions の完了後です。ワークフローは配信元が GitHub Actions であることを確認し、公開後に HTML・CSS・JavaScript・サンプル GLB の取得も検証します。Google Drive 連携には、下記の Google 側の設定も必要です。
+別の端末からも使えるマスター版を用意する場合は、**サイト全体を守る認証サービス**が必要です。たとえば Cloudflare Access なら、サイトを開く前に本人のメールアドレスで認証し、そのアドレスだけにアクセスを許可できます。Cloudflare のアカウントとホスティングの設定が必要なため、現時点では認証付きの外部マスターサイトは未作成です。認証を設定する前にマスター版をデプロイしないでください。
+
+`noindex` やブラウザ内の表示切り替えは、閲覧制限にはなりません。このリポジトリの公開範囲と、サイトへの閲覧制限は別の設定です。
+
+### ビルドと公開の分離
+
+- `production/`：本番用のヘッダーと Coming soon ページ。
+- `index.html`・`src/`・`public/`：マスター版の3Dアプリ。
+- `npm run build` → `dist/`：本番のみ。3Dアプリの JavaScript やモデルは含めません。
+- `npm run build:master` → `dist-master/`：マスター版。GitHub Pages には送信しません。
+
+本番は `main` への push で「Deploy public coming-soon site」が実行されます。Pages の Source は **GitHub Actions** のままにしてください。公開後は Coming soon 画面と CSS を取得し、マスターのパスとモデルが 404 になることも確認します。
 
 ## UI
 
@@ -35,22 +47,29 @@ npm run build
 npm run preview -- --port 4173 --strictPort
 ```
 
-ビルド成果物は `dist/` です。静的ホスティングのルートに配置できます。GLB のプレビューは Google の設定なしで動作します。Drive 連携にはインターネット接続と次の OAuth 設定が必要です。
+マスター版のビルド成果物を手元で確認する場合：
+
+```sh
+npm run build:master
+npm run preview:master -- --port 4174 --strictPort
+```
+
+本番のビルド成果物は `dist/`、マスター版は `dist-master/` です。GLB のプレビューは Google の設定なしで動作します。マスター版の Drive 連携には、インターネット接続と次の OAuth 設定が必要です。
 
 ## Google Drive の設定（サイト管理者）
 
 1. Google Cloud Console でプロジェクトを用意し、**Google Drive API** を有効にします。
 2. Google Auth Platform で Branding・Audience・Data Access を設定します。対象ユーザーに応じて Audience を選択し、Testing の場合は利用する Google アカウントをテストユーザーに追加します。スコープは `https://www.googleapis.com/auth/drive.file` を追加します。
-3. OAuth クライアントを種類 **ウェブ アプリケーション** で作成します。「承認済みの JavaScript 生成元」に、実際に利用するサイトのオリジン（スキーム・ホスト・ポートまで、パスなし）を登録します。開発用には `http://localhost:5173`、ビルド確認用には `http://localhost:4173`、本番には実際の HTTPS オリジンを登録します。ブラウザのトークン方式を使うため、この実装用のリダイレクト URI は不要です。
+3. OAuth クライアントを種類 **ウェブ アプリケーション** で作成します。「承認済みの JavaScript 生成元」に、実際に利用するサイトのオリジン（スキーム・ホスト・ポートまで、パスなし）を登録します。開発用には `http://localhost:5173`、マスター版のビルド確認用には `http://localhost:4174`、認証付きのマスターサイトを用意した場合はその HTTPS オリジンを登録します。ブラウザのトークン方式を使うため、この実装用のリダイレクト URI は不要です。
 4. `.env.example` を `.env.local` にコピーし、`VITE_GOOGLE_CLIENT_ID` に発行されたクライアント ID（`…apps.googleusercontent.com`）を設定します。これは公開クライアント ID です。**クライアントシークレット、サービスアカウント鍵、アクセストークンは設定しません。**
-5. 開発サーバーを再起動します。本番は環境変数を設定した状態で `npm run build` し、`dist/` を配信します。Vite の変数はビルド時に埋め込まれるため、配信時に変数だけ変えても反映されません。
-6. 実サイトで Google に接続し、GLB を選択 → プレビューの読み込み完了 → 「表示中のモデルを Drive に保存」を押します。再読み込みして Google に再接続し、一覧から保存したモデルを開けることを確認してください。
+5. 開発サーバーを再起動します。マスター版のビルドには環境変数を設定した状態で `npm run build:master` を実行します。Vite の変数はビルド時に埋め込まれるため、配信時に変数だけ変えても反映されません。
+6. マスター版で Google に接続し、GLB を選択 → プレビューの読み込み完了 → 「表示中のモデルを Drive に保存」を押します。再読み込みして Google に再接続し、一覧から保存したモデルを開けることを確認してください。
 
 クラウド環境では環境設定の `VITE_GOOGLE_CLIENT_ID` に値を設定できます。Google の承認済みオリジンには、実際にブラウザでサイトを開く URL のオリジンが必要です。
 
 ## 保存と表示の仕組み
 
-- ログインした利用者それぞれの My Drive に、このアプリ用の **3D Museum** フォルダを初回保存時に作成します。共通の管理者フォルダは使いません。
+- ログインした利用者それぞれの My Drive に、このアプリ用の **3D Museum (Master)** フォルダを初回保存時に作成します。共通の管理者フォルダは使いません。
 - ファイル選択・ドロップ時はローカルプレビューだけを行います。「Drive に保存」を押すと、ブラウザから Google Drive API に直接送信します。アプリ側のバックエンドやデータベースは不要です。
 - アプリは共有権限を追加しません。新しく作成したフォルダとファイルは非公開です。Drive 側で利用者が共有設定を変更した場合はその設定に従います。
 - `drive.file` はこのアプリで作成・許可されたファイルだけにアクセスする権限です。一覧にはアプリのフォルダに保存した作品を表示します。既存の Drive 全体の検索や Google Picker は実装していません。

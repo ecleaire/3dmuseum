@@ -1,6 +1,7 @@
 import '@google/model-viewer';
 import './style.css';
 import './theme.js';
+import './site.js';
 import { MAX_MODEL_BYTES, validateGlb } from '../shared/glb.js';
 import { DriveStorage, loadGoogleIdentity } from './drive.js';
 
@@ -104,7 +105,7 @@ const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
 let busy = false;
 let identityReady = false;
 let listing = 0;
-const drive = new DriveStorage({ onExpired: () => {
+const drive = new DriveStorage({ master: true, onExpired: () => {
   files.replaceChildren();
   listing++;
   driveStatus.textContent = 'Google の接続期限が切れました。再接続してください。';
@@ -164,7 +165,7 @@ connect.addEventListener('click', () => runDriveTask(async () => {
   await result;
   selectedSaved = false;
   await showDriveFiles();
-  driveStatus.textContent = '接続しました。保存先は自分の Drive の「3D Museum」です。';
+  driveStatus.textContent = `接続しました。保存先は自分の Drive の「${drive.folderName}」です。`;
 }));
 save.addEventListener('click', () => runDriveTask(async () => {
   const file = selectedFile;

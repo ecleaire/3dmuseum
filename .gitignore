@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-master/
 *.log
 .env
 .env.*

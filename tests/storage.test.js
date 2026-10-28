@@ -90,3 +90,38 @@ test('an in-flight response from a disconnected account is discarded', async (t)
   finish(new Response(file));
   await assert.rejects(result, /接続先が変更/);
 });
+
+test('master uploads and queries use a separate Drive folder and file namespace', async (t) => {
+  const original = globalThis.fetch;
+  t.after(() => { globalThis.fetch = original; });
+  const drive = new DriveStorage({ master: true });
+  drive.token = 'test-only';
+  let created = false;
+  globalThis.fetch = async (url, options) => {
+    const parsed = new URL(url);
+    if (parsed.pathname.startsWith('/upload/')) {
+      const payload = await options.body.text();
+      assert.match(payload, /"parents":\["master-folder"\]/);
+      assert.match(payload, /"museumModel":"glb-master-v1"/);
+      return jsonResponse({id:'master-model'});
+    }
+    if (options.method === 'POST') {
+      const metadata = JSON.parse(options.body);
+      assert.equal(metadata.name, '3D Museum (Master)');
+      assert.equal(metadata.appProperties.museumApp, '3dmuseum-master-v1');
+      created = true;
+      return jsonResponse({id:'master-folder'});
+    }
+    const query = parsed.searchParams.get('q');
+    if (query.includes('museumApp')) {
+      assert.match(query, /value='3dmuseum-master-v1'/);
+      return jsonResponse({files:[]});
+    }
+    assert.match(query, /'master-folder' in parents/);
+    assert.match(query, /value='glb-master-v1'/);
+    return jsonResponse({files:[]});
+  };
+  await drive.save(new File([file], 'sample.glb'));
+  assert.equal(created, true);
+  await drive.list();
+});
