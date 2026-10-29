@@ -1,3 +1,4 @@
+import './fullscreen.js';
 import '@google/model-viewer';
 
 const viewer = document.querySelector('#octahedron');
